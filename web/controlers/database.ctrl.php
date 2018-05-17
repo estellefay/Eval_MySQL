@@ -72,16 +72,13 @@ function check($key) {
 }
 
 function createUser($db, $username, $email, $password1, $password2) {
-	if ($password1 === $password2) {
+	if ($password1 === $password2)  { 
 		$query = $db->prepare("INSERT INTO users(username, email, password) VALUE ( ?, ? ,?)");
 		$passwordMD5 = md5($_POST['password1']);
 		$query->bind_param("sss", $username, $email, $passwordMD5);
-		$query->execute();
-		return true;
-
-
+		return $query->execute();
 	} else {
-		echo"You password is not same";
+		return "noPassword";
 	}
 }
 

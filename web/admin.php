@@ -2,20 +2,22 @@
 session_start();
 include_once('controlers/database.ctrl.php');
 
-if (check('username') && check('email') && check('password1') && check('password2')) {
-    createUser($db, $_POST['username'], $_POST['email'], $_POST['password1'], $_POST['password2']);
+if (check('username') && check('email') && check('password1') && check('password2') ) {
+    $result = createUser($db, $_POST['username'], $_POST['email'], $_POST['password1'], $_POST['password2']); #stocker variable
+    var_dump($result);
+        if ($result === false ){
+             echo"thE USERNAME OR THE EMAIL IS EXIST";
+        } elseif  ( $result === "noPassword") {
+            echo"You password is not same";
+        } else {
+            echo"Your user is add"; 
+
+        }
 } else {
     echo"Complete empty child";
 }
 
-if ($result == false ) {
-    echo"thE USERNAME OR THE EMAIL IS EXIST"; 
-} elseif ($result == true) {
-    echo"Your user is add";
-}
-
 ?>
-
 
 <h1>CREATE PROFILE</h1>
 <form action="" method="post">
