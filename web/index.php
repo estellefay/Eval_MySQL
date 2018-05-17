@@ -1,44 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-</head>
+<?php
+session_start();
+include_once('controlers/database.ctrl.php');
 
-    <body>
-        <h1>Hello connectes you</h1>
-        <form action=""  method="POST">
-            <input type="text" name="email" > email
-            <input type="password" name="password">password
-            <input type="submit" name="send">
-        </form>
-
-    <?php    
-    session_start();
-        $bd = new mysqli(
-            "192.168.57.10", //ip
-            "estelle", // user
-            "password", // MOt de passe 
-            "blog" // nom de la base de donée 
-        );
-
-        if(isset($_POST['email']) && isset($_POST['password'])) {
-            $query = "SELECT email, password FROM users WHERE email = '" . $_POST['email'] . "'" ; 
-            $user = $bd->query($query);
-            $user = $user->fetch_assoc();
-            if($user == NULL) {
-                echo "email is not good";
-            }
-            elseif ($_POST['password'] != $user['password'] ) {
-                echo "Le mots de passe est faux";
-            }
-            else {
-                echo "vous êtes connecté";
-                $_SESSION['email'] = $_POST['email'];
-                $_SESSION['password'] = $_POST['password'];
-                var_dump($_SESSION);
-            }
+if(isset($_GET['action']) && $_GET['action'] == 'logout') {
+	session_destroy();
+	header('Location: http://192.168.57.10/');
+	exit();
+}
+if(isset($_POST['username']) && isset($_POST['password'])) {
+	$result = connect_user($db, $_POST['username'], $_POST['password']);
 }
 ?>
-    </body>
-</html>
+
+<header>
+	<h1>Website</h1>
+</header>
+
+
+<main>
+<?php if(isset($result) && $result !== true): ?>
+	<?php if($result == 'username'): ?>
+	<div style="border:1px solid red">Wrong username</div>
+	<?php else: ?>
+	<div style="border:1px solid red">Wrong password</div>
+	<?php endif; ?>
+<?php endif; ?>
+
+<?php if(!isset($_SESSION['user'])): ?>
+	<h3>Please login</h3>
+	<form action="" method="POST">
+		<input type='text' name="username"/>
+		<input type='password' name="password"/>
+		<input type='submit'/>
+	</form>
+<?php else: ?>
+	<h3>Welcome <?= $_SESSION['user']['username'] ?> (<?= $_SESSION['user']['id'] ?>)</h3>
+	<a href="?action=logout">Logout</a>
+<?php endif; ?>
+
+</main>
