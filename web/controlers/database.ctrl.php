@@ -1,84 +1,66 @@
-<?php
+
+
+<?php 
+
+# Definit base donnée 
 $db = new mysqli(
 	"192.168.57.10", 
 	"estelle", 
 	"password", 
-	"blog"
+	"blod2"
 );
 
+#fonction uqi récupère mes comments / user et date 
+function recupComments($db) {
+    $query = "SELECT user, comments, createdAt FROM Comments";
+    $comments = $db->query($query);
+    $comments = $comments->fetch_all(MYSQLI_ASSOC);
+    return $comments;
+}
 
-function connect_user($db, $username, $password) {
-	$query = $db->prepare("SELECT id, username, password, email FROM users WHERE username=?");
-	$query->bind_param("s", $username);
-	$query->execute();
-	$user = $query->get_result();
-	$user = $user->fetch_assoc();
-	if($user === NULL) {
-		return 'username';
-	}
-	elseif($user['password'] != md5($password)) {
-		return 'password';
-	}
-	else {
-		$_SESSION['user'] = array(
-			"id"       => $user['id'],
-			"username" => $user['username'],
-			"email"    => $user['email']
-		);
-		return true;
-	}
+function orderComments($db) {
+    $query ="SELECT user, comments, createdAt FROM Comments ORDER BY createdAt DESC";
+    $orderComments = $db->query($query);
+    $orderComments = $orderComments->fetch_all(MYSQLI_ASSOC);
+    return $orderComments;
+}
+
+function diplay10($db) {
+    $query ="SELECT user, comments, createdAt FROM Comments ORDER BY id LIMIT 10";
+    $display10 = $db->query($query);
+    $display10 = $display10->fetch_all(MYSQLI_ASSOC);
+    return $display10;
+}
+
+function diplayAdmin($db) {
+    $query ="SELECT user, comments, createdAt FROM Comments WHERE user='blabla'";
+    $diplayAdmin = $db->query($query);
+    $diplayAdmin = $diplayAdmin->fetch_all(MYSQLI_ASSOC); # cree tableau
+    return $diplayAdmin;
+}
+
+function removeAdmin($db) {
+    $query ="DELETE FROM Comments WHERE user='admin'";
+    $removeAdmin = $db->query($query);
+    return $removeAdmin;
+    
+}
+
+function insertComments($db) {
+    $query ="INSERT INTO Comments (user, comments, createdAt) VALUES ('admin', 'vfbdghfdjnh,g', CURRENT_TIME)";
+    $insertComments = $db->query($query);
+    return $insertComments;
+    
+}
+
+function changeAdmintoPierre($db) {
+    $query ="UPDATE Comments SET user = 'pierre' WHERE user = 'admin';";
+    $insertComments = $db->query($query);
 }
 
 
-function listPostAll($db) {
-	$query = "SELECT * FROM posts"; 
-	$dbTitle = $db->query($query);
-	$dbTitle = $dbTitle->fetch_all(MYSQLI_ASSOC);
-	return $dbTitle;
+function insertCommentsCostum($db) {
+    $query =$db->prepare("INSERT INTO Comments (user, comments, createdAt) VALUES (?, ?, CURRENT_TIME)");
+    $query->bind_param("ss", $_POST['user'], $_POST['comments']); 
+    $query->execute();   
 }
-
-function deletePost($db, $id) {
-	$query = $db->prepare("DELETE FROM posts WHERE id=?");
-	$query->bind_param("s", $id);
-	$query->execute();
-}
-
-function getPost($db, $id) {
-	$query = $db->prepare("SELECT * FROM posts WHERE id=?");
-	$query->bind_param("s", $id);
-	$query->execute();
-	$posts = $query->get_result();
-	$posts = $posts->fetch_assoc();
-	return $posts;
-}
-
-function utdateToNew($db, $id) {
-	$query = $db->prepare("UPDATE posts SET title=?, category=? WHERE id=?"); 
-	$query->bind_param("sss", $_POST['title'], $_POST['category'], $id);
-	$query->execute();
-}
-
-function insertPublish($db) {
-	$query = $db->prepare("INSERT INTO posts(title, content, author, category, created_at) VALUE (?, ?, ?, ?, CURRENT_TIMESTAMP)");
-	$query->bind_param("ssss", $_POST['title'], $_POST['content'], $_POST['author'], $_POST['category']);
-	$query->execute();
-}
-
-function check($key) {
-	if(isset($_POST[$key]) && !empty($_POST[$key])) {
-		return true;
-	}
-	return false;
-}
-
-function createUser($db, $username, $email, $password1, $password2) {
-	if ($password1 === $password2)  { 
-		$query = $db->prepare("INSERT INTO users(username, email, password) VALUE ( ?, ? ,?)");
-		$passwordMD5 = md5($_POST['password1']);
-		$query->bind_param("sss", $username, $email, $passwordMD5);
-		return $query->execute();
-	} else {
-		return "noPassword";
-	}
-}
-
